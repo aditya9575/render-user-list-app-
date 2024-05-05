@@ -1,0 +1,180 @@
+The lifting the state up concept here goes like in our 
+
+AddUser.jsx component we have a form in which we have inpit fields which take in name and data and we have states to update that data
+but till now in this component we are just console.logging this name and age data after making it an object 
+
+
+-> we decided to make a seprate component to render this data entered by the user using a map function -> as a <li></li> item , in our
+UsersList.jsx component and we then finally render this userList component in our app.jsx below the adduser component
+i.e->
+<AddUser />
+<UsersList /> 
+
+
+->But for this to work we need to have access of the userdata object in our UsersList component for which we will be needing the 
+concept of lifting the state up -> 
+
+
+******************************
+So we make use of useState hook in our app.jsx as its the closest common parent and this state will send in data to the 
+UsersList component via props and then we ultimately render the user list 
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+App.js code->
+
+import React, { useState } from "react";
+import AddUser from "./components/Users/AddUser";
+import UsersList from "./components/Users/UsersList";
+// import UserForm from './components/UserForm/UserForm';
+
+function App() {
+
+// here we use state to send data to our users list as its the closest parent 
+const [usersList , setUsersList] = useState([])
+
+const addUserHandler = (uName , uAge) =>{
+       setUsersList((prevUsersList)=>{
+        return [...prevUsersList, {name:uName , age:uAge , id:Math.random().toString()}]
+       })
+}
+
+  return (
+    <div>
+      {/* <UserForm/> */}
+      <AddUser onAddUser={addUserHandler} />
+      <UsersList users={usersList}/>
+    </div>
+  );
+}
+
+export default App;
+
+
+*)AddUser.jsx code ->
+
+import React, { useState } from "react";
+import Card from "../UI/Card";
+import classes from "./AddUser.module.css"
+import Button from "../UI/Button";
+
+const AddUser = (props) => {
+  const [userName, setUserName] = useState("");
+  const [age, setAge] = useState("");
+
+ 
+
+  const handleUserName = (e) => {
+    setUserName(e.target.value);
+  };
+
+  const handleUserAge = (e) => {
+    setAge(e.target.value);
+  };
+
+  const addUserHandler = (e) => {
+    e.preventDefault();
+
+ 
+if(userName.trim().length === 0 || age.trim().length === 0) {
+  return; 
+}
+
+if(+age <= 0) {
+  return; 
+}
+
+ props.onAddUser(userName , age );
+
+    setUserName("");
+    setAge("");
+  };
+
+ 
+
+  return (
+    <Card className={classes.input}>
+
+      <form onSubmit={addUserHandler}>
+        <label htmlFor="username">Username</label>
+        <input
+          type="text"
+          value={userName}
+          name="Username"
+          id="username"
+          onChange={handleUserName}
+        />
+
+        <label htmlFor="age">Age(years)</label>
+        <input
+          type="number"
+          value={age}
+          name="Ageno"
+          id="age"
+          onChange={handleUserAge}
+        />
+        
+
+        <Button type="submit">Add User</Button>
+      </form>
+    </Card>
+  );
+};
+
+export default AddUser;
+
+
+*)UsersList.jsx code ->
+
+import React from "react";
+import Card from "../UI/Card";
+import classes from "./UsersList.module.css";
+
+const UsersList = (props) => {
+  return (
+    <Card className={classes.users}>
+      <ul>
+        {/* map executes a function on every item in the users array which is an array of users object */}
+        {props.users.map((user) => (
+          <li key={user.id}>
+            {user.name} ({user.age} years old)
+          </li>
+        ))}
+      </ul> 
+    </Card>
+  );
+};
+
+export default UsersList;
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+
+After making the error modal component we need to make sure that we conditionally render that component
+
+first make the error modal 
+then render it above the component you want then for conditionally rendering this error modal you'll need to have a seprate state
+like ->   const [error,setError] = useState("");
+
+then when we are using the check condition which may cause the error -> we inside that function will call setError method and pass in 
+the error details to it 
+
+then at the time of rendering the error modal we can simply use destructuring and the && conditional rendering to display the error 
+and the error modal 
+
+ex->    { error && <ErrorModal title={error.title} message={error.message}/> }
+this above condition checks that if error is true then render the error component
+
+
+now for closing this error modal that appeared we need to add a seprate error handller function ->  const errorHandler =()=>{
+  setError(null);
+ }
+
+ and then from inside this error modal we trigger this function 
